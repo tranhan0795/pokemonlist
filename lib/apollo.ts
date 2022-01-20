@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
-import { concatPagination } from '@apollo/client/utilities'
 import merge from 'deepmerge'
 import isEqual from 'lodash/isEqual'
 import type { AppProps } from 'next/app'
+import { offsetLimitPagination } from '@apollo/client/utilities'
 
 export const APOLLO_STATE_PROP_NAME = '__APOLLO_STATE__'
 
@@ -20,16 +20,7 @@ function createApolloClient() {
             typePolicies: {
               Query: {
                 fields: {
-                  feed: {
-                    // Don't cache separate results based on
-                    // any of this field's arguments.
-                    keyArgs: false,
-                    // Concatenate the incoming list items with
-                    // the existing list items.
-                    merge(existing = [], incoming) {
-                      return [...existing, ...incoming];
-                    },
-                  }
+                    pokemon_v2_pokemon:offsetLimitPagination()
                 }
               }
             }
