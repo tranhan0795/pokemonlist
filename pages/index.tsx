@@ -3,6 +3,8 @@ import { useState } from 'react'
 import Head from 'next/head'
 import SearchBar, { searchT } from '../components/SearchBar'
 import PokemonList from '../components/PokemonList'
+import { initializeApollo, addApolloState } from '../lib/apollo'
+import { PokemonData, PokemonVar, POKEMON_LIST_QUERY } from '../components/PokemonList'
 
 export interface SearchParams {
   searchValue: string, searchType: searchT
@@ -25,6 +27,20 @@ const Home: NextPage = () => {
       </div>
     </div>
   )
+}
+
+export async function getStaticProps() {
+  const apolloClient = initializeApollo()
+
+  await apolloClient.query<PokemonData, PokemonVar>({
+    query: POKEMON_LIST_QUERY,
+    variables: { limit: 50 },
+  })
+
+  return addApolloState(apolloClient, {
+    props: {},
+    revalidate: 3600,
+  })
 }
 
 export default Home

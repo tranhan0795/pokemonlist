@@ -1,11 +1,12 @@
 import { useQuery, gql, NetworkStatus } from '@apollo/client';
 import useFetchMore from '../customHooks/useFetchMore'
-import {useEffect } from 'react'
+import { useEffect } from 'react'
 import Link from "next/link"
 import Image from 'next/image'
 import { SearchParams } from '../pages/index';
+import Skeleton from './Skeleton';
 
-const POKEMON_LIST_QUERY = gql`
+export const POKEMON_LIST_QUERY = gql`
 query Pokemon_v2_pokemon($where: pokemon_v2_pokemon_bool_exp, $offset: Int, $limit: Int) {
   pokemon_v2_pokemon(where: $where, offset: $offset, limit: $limit) {
     name
@@ -15,7 +16,7 @@ query Pokemon_v2_pokemon($where: pokemon_v2_pokemon_bool_exp, $offset: Int, $lim
 `
 
 export interface PokemonVar {
-    limit: 25
+    limit: number
     offset?: number
     where?: {
         name?: {
@@ -88,14 +89,14 @@ const PokemonList: React.FC<Props> = ({ searchParams }) => {
         refetch(createVars(searchParams));
     }, [searchParams, refetch]);
 
-    console.log(data);
+   // console.log(data);
 
-    if (networkStatus === NetworkStatus.loading) return (<p>loading</p>);
+    if (networkStatus === NetworkStatus.loading) return (<Skeleton />);
     if (error) return <p>Error! {error.message}</p>;
-    if (networkStatus === NetworkStatus.refetch) return (<p>loading</p>);
+    if (networkStatus === NetworkStatus.refetch) return (<Skeleton />);
     if (data!.pokemon_v2_pokemon.length < 1) return (<p>No data found!!!!</p>)
 
-    return (
+    return (<>
         <div className='flex flex-wrap gap-6 mt-5'>
             {
                 data!.pokemon_v2_pokemon.map((pokemon, index) => {
@@ -106,13 +107,15 @@ const PokemonList: React.FC<Props> = ({ searchParams }) => {
                             <span className='self-center'>{pokemon.name}</span>
                             <Image alt={pokemon.name} width={70} height={70}
                                 src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${pokemon.id}.svg`} />
-
+{/* take img url from rest api since graphql not updated yet */}
                         </a>
                     </Link>
                     )
                 })
             }
         </div>
+        {networkStatus===NetworkStatus.fetchMore?<Skeleton/>:''}
+    </>
     )
 }
 

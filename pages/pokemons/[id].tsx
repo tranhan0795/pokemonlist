@@ -2,6 +2,7 @@ import { GetStaticPaths, GetStaticProps } from "next"
 import { initializeApollo } from '../../lib/apollo'
 import { gql } from "@apollo/client"
 import Image from "next/image"
+import Head from "next/head"
 
 const ALL_POKEMON_IDS = gql`
 query all_pokemon_ids{
@@ -96,7 +97,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     })
     return {
         paths: ids,
-        fallback: false
+        fallback: 'blocking'
     }
 }
 
@@ -124,7 +125,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     return {
         props: {
             data
-        }
+        },
+        revalidate:3600
     }
 }
 
@@ -133,13 +135,18 @@ const PokemonCard: React.FC<Props> = ({ data }) => {
 
     return (
         <div>
+            <Head>
+                <title>{pokemon.name}</title>
+                <meta name="description" content={pokemon.name} />
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
             <div className=" p-5 bg-gray-50 h-screen ">
                 <div className="flex flex-wrap justify-center gap-2">
-                    <div className="bg-gray-200 rounded-md hover:shadow-md">
+                    <div className="bg-gray-200 rounded-md hover:shadow-lg shadow-sm">
                         <Image src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`}
-                            height={400} width={400} alt={pokemon.name} />
+                            height={400} width={400} alt={pokemon.name} /> {/* take img url from rest api since graphql not updated yet */}
                     </div>
-                    <div className="border-gray-900 border-1 rounded-md hover:shadow-md w-96 bg-gray-200 p-5">
+                    <div className="border-gray-900 border-1 rounded-md hover:shadow-lg shadow-sm w-96 bg-gray-200 p-5">
                         <h1 className="text-center font-extrabold text-xl capitalize">{pokemon.name}</h1>
                         <div>
                             <div className="font-bold">Height:<span className="font-normal"> {pokemon.height}</span> </div>
@@ -153,7 +160,7 @@ const PokemonCard: React.FC<Props> = ({ data }) => {
                                 <div className="flex justify-center">
                                     {pokemon.pokemon_v2_pokemonabilities.map((ability, i) => {
                                         return (
-                                            <span className="bg-gray-300 m-1 p-1 w-15 rounded-md font-normal capitalize" key={i}>
+                                            <span className="bg-orange-600 text-white m-1 p-1 w-15 rounded-md font-normal capitalize" key={i}>
                                                 {ability.pokemon_v2_ability.name}</span>
                                         )
                                     })}
@@ -163,7 +170,7 @@ const PokemonCard: React.FC<Props> = ({ data }) => {
                                 <div className="flex justify-center">
                                     {pokemon.pokemon_v2_pokemontypes.map((type, i) => {
                                         return (
-                                            <span className="bg-gray-300 m-1 p-1 w-15 rounded-md font-normal capitalize" key={i}>
+                                            <span className="bg-blue-500 text-white m-1 p-1 w-15 rounded-md font-normal capitalize" key={i}>
                                                 {type.pokemon_v2_type.name}</span>
                                         )
                                     })}
