@@ -2,7 +2,6 @@ import { GetStaticPaths, GetStaticProps } from "next"
 import { initializeApollo } from '../../lib/apollo'
 import { gql } from "@apollo/client"
 import Image from "next/image"
-import { stat } from "fs"
 
 const ALL_POKEMON_IDS = gql`
 query all_pokemon_ids{
