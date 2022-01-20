@@ -1,10 +1,9 @@
 import { useQuery, gql, NetworkStatus } from '@apollo/client';
-import useObserver from '../customeHooks/useObsesver'
+import useFetchMore from '../customHooks/useFetchMore'
 import { useRef, useEffect, useMemo } from 'react'
 import Link from "next/link"
 import Image from 'next/image'
 import { SearchParams } from '../pages/index';
-
 
 const POKEMON_LIST_QUERY = gql`
 query Pokemon_v2_pokemon($where: pokemon_v2_pokemon_bool_exp, $offset: Int, $limit: Int) {
@@ -15,7 +14,7 @@ query Pokemon_v2_pokemon($where: pokemon_v2_pokemon_bool_exp, $offset: Int, $lim
 }
 `
 
-interface PokemonVar {
+export interface PokemonVar {
     limit: 25
     offset?: number
     where?: {
@@ -32,7 +31,7 @@ interface PokemonVar {
     }
 }
 
-interface PokemonData {
+export interface PokemonData {
     pokemon_v2_pokemon: [{ id: number, name: string }]
 }
 
@@ -77,50 +76,24 @@ const createVars = (searchParams: SearchParams): PokemonVar => {
 }
 
 const PokemonList: React.FC<Props> = ({ searchParams }) => {
-    const ref = useRef<HTMLAnchorElement>(null);
-    //const isInView = useObserver<HTMLDivElement>(ref.current);
+
     const { error, data, fetchMore, networkStatus, refetch } = useQuery<PokemonData, PokemonVar>(POKEMON_LIST_QUERY, {
         variables: createVars(searchParams),
         notifyOnNetworkStatusChange: true,
     })
 
+    const ref = useFetchMore(fetchMore, data)
+
     useEffect(() => {
-      refetch(createVars(searchParams));   
-    }, [searchParams,refetch]);
+        refetch(createVars(searchParams));
+    }, [searchParams, refetch]);
 
     console.log(data);
-
-    useEffect(() => {
-        if (ref.current !== null) {
-            const observer = new IntersectionObserver((entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
-                if (entries[0].isIntersecting) {
-                    console.log('inview now');
-                    fetchMore({
-                        variables: {
-                            offset: data!.pokemon_v2_pokemon.length
-                        },
-                    })
-                    if (ref.current !== null) observer.unobserve(ref.current);
-                };
-            })
-            observer.observe(ref.current);
-        }
-        return()=>{
-
-        }
-    }, [data, fetchMore])
-
-    // if (isInView && networkStatus !== NetworkStatus.fetchMore) {
-    //     fetchMore({
-    //         variables: {
-    //             offset: data!.pokemon_v2_pokemon.length
-    //         },
-    //     })
-    // }
 
     if (networkStatus === NetworkStatus.loading) return (<p>loading</p>);
     if (error) return <p>Error! {error.message}</p>;
     if (networkStatus === NetworkStatus.refetch) return (<p>loading</p>);
+    if (data!.pokemon_v2_pokemon.length < 1) return (<p>No data found!!!!</p>)
 
     return (
         <div className='flex flex-wrap gap-6 mt-5'>
