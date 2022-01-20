@@ -1,6 +1,6 @@
 import { useQuery, gql, NetworkStatus } from '@apollo/client';
 import useFetchMore from '../customHooks/useFetchMore'
-import { useRef, useEffect, useMemo } from 'react'
+import {useEffect } from 'react'
 import Link from "next/link"
 import Image from 'next/image'
 import { SearchParams } from '../pages/index';
