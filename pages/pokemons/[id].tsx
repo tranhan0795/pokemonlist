@@ -5,8 +5,8 @@ import Image from "next/image"
 import Head from "next/head"
 
 const ALL_POKEMON_IDS = gql`
-query all_pokemon_ids{
-    pokemon_v2_pokemon {
+query all_pokemon_ids($limit: Int){
+    pokemon_v2_pokemon(limit: $limit) {
     id
   }
 }
@@ -90,7 +90,10 @@ interface Props {
 export const getStaticPaths: GetStaticPaths = async () => {
     const apolloClient = initializeApollo();
     const { data } = await apolloClient.query<IdData>({
-        query: ALL_POKEMON_IDS
+        query: ALL_POKEMON_IDS,
+        variables: {
+            limit: 20
+        }
     })
     const ids = data.pokemon_v2_pokemon.map(({ id }: { id: number }) => {
         return { params: { id: id.toString() } }
@@ -126,7 +129,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         props: {
             data
         },
-        revalidate:3600
+        revalidate: 3600
     }
 }
 
