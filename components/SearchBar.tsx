@@ -1,4 +1,5 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import debound from 'lodash/debounce'
 
 interface Props {
     setSearchParams: React.Dispatch<React.SetStateAction<{
@@ -34,16 +35,23 @@ const SearchBar: React.FC<Props> = ({ setSearchParams }) => {
     const [searchValue, setSearchValue] = useState<string>('');
     const [searchType, setSearchType] = useState<searchT>('name');
 
-    const handleSearchTypeChange = (e:React.ChangeEvent<HTMLSelectElement>) =>{
-      setSearchType(()=>{
-          return e.target.value as searchT
-      });
-      if(searchType === 'type'){
-          setSearchValue(()=>'');
-      }else{
-          setSearchValue(()=>'normal');
-      }
+    const debounceSearch = useCallback(debound((searchType,searchValue) => setSearchParams({searchType,searchValue}), 500), []);
+
+    const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSearchType(() => {
+            return e.target.value as searchT
+        });
+        if (searchType === 'type') {
+            setSearchValue(() => '');
+        } else {
+            setSearchValue(() => 'normal');
+        }
     }
+
+    useEffect(() => {
+        debounceSearch(searchType,searchValue);
+    }, [searchType,searchValue]);
+
 
     return (<>
         <div className=' flex flex-wrap gap-2'>
@@ -53,7 +61,7 @@ const SearchBar: React.FC<Props> = ({ setSearchParams }) => {
                 :
                 <select value={searchValue} onChange={e => setSearchValue(e.target.value)}
                     className='outline-none border-2 border-i  border-gray-500 rounded-md focus:border-blue-400'>
-                    {pokemonType.map((type,i)=>{
+                    {pokemonType.map((type, i) => {
                         return <option value={type} key={i}>{type}</option>
                     })}
                 </select>}
@@ -62,9 +70,6 @@ const SearchBar: React.FC<Props> = ({ setSearchParams }) => {
                 <option value='name'>Search by name </option>
                 <option value='type'>Search by type </option>
             </select>
-            {/* onclick cant return void feelsbadman */}
-            <button onClick={e => setSearchParams({ searchType, searchValue })} className='bg-blue-500 
-            p-1 rounded-md w-20 hover:bg-blue-800 text-white'>Search</button>
         </div>
     </>
     )
