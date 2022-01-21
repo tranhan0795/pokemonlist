@@ -24,7 +24,7 @@ const useFetchMore = (fetchMore: (vars: FetchMoreVars) => Promise<any>, data: Po
             })
             observer.observe(ref.current);
         }
-    }, [data, fetchMore])
+    })
     return ref;
 }
 
