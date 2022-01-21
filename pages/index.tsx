@@ -34,7 +34,7 @@ export async function getStaticProps() {
 
   await apolloClient.query<PokemonData, PokemonVar>({
     query: POKEMON_LIST_QUERY,
-    variables: { limit: 25 },
+    variables: { limit: 30 },
   })
 
   return addApolloState(apolloClient, {
