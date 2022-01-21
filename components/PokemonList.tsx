@@ -106,7 +106,7 @@ const PokemonList: React.FC<Props> = ({ searchParams }) => {
                         bg-gray-100 text-lg shadow-sm hover:shadow-xl hover:scale-105 capitalize' >
                             <span className='self-center'>{pokemon.name}</span>
                             <Image alt={pokemon.name} width={70} height={70}
-                                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${pokemon.id}.svg`} />
+                                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`} />
 {/* take img url from rest api since graphql not updated yet */}
                         </a>
                     </Link>
