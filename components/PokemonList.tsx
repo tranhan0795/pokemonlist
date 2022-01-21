@@ -114,7 +114,7 @@ const PokemonList: React.FC<Props> = ({ searchParams }) => {
                 })
             }
         </div>
-        {networkStatus===NetworkStatus.fetchMore?<Skeleton/>:''}
+    {/* {networkStatus===NetworkStatus.fetchMore?<Skeleton/>:''} */}
     </>
     )
 }
