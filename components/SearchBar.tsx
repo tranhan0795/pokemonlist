@@ -39,9 +39,9 @@ const SearchBar: React.FC<Props> = ({ setSearchParams }) => {
           return e.target.value as searchT
       });
       if(searchType === 'type'){
-          setSearchValue('');
+          setSearchValue(()=>'');
       }else{
-          setSearchValue("");
+          setSearchValue(()=>'normal');
       }
     }
 
