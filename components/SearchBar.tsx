@@ -26,7 +26,6 @@ const SearchBar: React.FC<Props> = ({ setSearchParams }) => {
             <button onClick={e => setSearchParams({ searchType, searchValue })} className='bg-blue-500 
             p-1 rounded-md w-20 hover:bg-blue-800 text-white'>Search</button>         
         </div>
-       <span>(graphql still in beta so i have to take imgs from their rest api, even tho some imgs still give 404 feelsbadman)</span>
         </>
     )
 }
