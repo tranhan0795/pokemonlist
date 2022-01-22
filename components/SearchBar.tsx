@@ -1,12 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useContext } from 'react'
 import debound from 'lodash/debounce'
+import { useSearchContext } from '../context/SearchCtxProvider';
 
-interface Props {
-    setSearchParams: React.Dispatch<React.SetStateAction<{
-        searchType: searchT,
-        searchValue: string
-    }>>
-}
 
 const pokemonType = [
     "normal",
@@ -31,35 +26,46 @@ const pokemonType = [
 
 export type searchT = 'name' | 'type';
 
-const SearchBar: React.FC<Props> = ({ setSearchParams }) => {
-    const [searchValue, setSearchValue] = useState<string>('');
-    const [searchType, setSearchType] = useState<searchT>('name');
+const SearchBar: React.FC = () => {
+    const { setSearchParams, searchParams: { searchValue, searchType } } = useSearchContext();
 
-    const debounceSearch = useCallback(debound((searchType,searchValue) => setSearchParams({searchType,searchValue}), 500), []);
+    const debounceSearch = useCallback(debound((searchType, searchValue) => setSearchParams({ searchType, searchValue }), 500), []);
 
     const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSearchType(() => {
-            return e.target.value as searchT
+        setSearchParams((prev) => {
+            return { ...prev, searchType: e.target.value as searchT }
         });
         if (searchType === 'type') {
-            setSearchValue(() => '');
+            setSearchParams((prev) => {
+                return { ...prev, searchValue: '' }
+            });
         } else {
-            setSearchValue(() => 'normal');
+            setSearchParams((prev) => {
+                return { ...prev, searchValue: 'normal' }
+            });
         }
     }
 
+    const handleSearchValueChange = (e:React.ChangeEvent<HTMLSelectElement|HTMLInputElement>)=>{
+        setSearchParams(prev=>{
+            return{
+            ...prev,searchValue:e.target.value
+            }
+        })
+    }
+
     useEffect(() => {
-        debounceSearch(searchType,searchValue);
-    }, [searchType,searchValue]);
+        debounceSearch(searchType, searchValue);
+    }, [searchType, searchValue]);
 
 
     return (<>
         <div className=' flex flex-wrap gap-2'>
             {searchType === 'name' ?
-                <input onChange={e => setSearchValue(e.target.value)} value={searchValue} className='outline-none 
+                <input onChange={handleSearchValueChange} value={searchValue} className='outline-none 
             border-gray-500 focus:border-blue-400 border-2 rounded-md'/>
                 :
-                <select value={searchValue} onChange={e => setSearchValue(e.target.value)}
+                <select value={searchValue} onChange={handleSearchValueChange}
                     className='outline-none border-2 border-i  border-gray-500 rounded-md focus:border-blue-400'>
                     {pokemonType.map((type, i) => {
                         return <option value={type} key={i}>{type}</option>

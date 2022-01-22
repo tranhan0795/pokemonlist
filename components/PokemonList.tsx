@@ -3,7 +3,7 @@ import useFetchMore from '../customHooks/useFetchMore'
 import { useEffect } from 'react'
 import Link from "next/link"
 import Image from 'next/image'
-import { SearchParams } from '../pages/index';
+import { SearchParams, useSearchContext } from '../context/SearchCtxProvider';
 import Skeleton from './Skeleton';
 
 export const POKEMON_LIST_QUERY = gql`
@@ -36,10 +36,6 @@ export interface PokemonData {
     pokemon_v2_pokemon: [{ id: number, name: string }]
 }
 
-
-interface Props {
-    searchParams: SearchParams
-}
 
 const createVars = (searchParams: SearchParams): PokemonVar => {
 
@@ -76,7 +72,8 @@ const createVars = (searchParams: SearchParams): PokemonVar => {
 
 }
 
-const PokemonList: React.FC<Props> = ({ searchParams }) => {
+const PokemonList: React.FC = () => {
+    const { searchParams } = useSearchContext()
 
     const { error, data, fetchMore, networkStatus, refetch } = useQuery<PokemonData, PokemonVar>(POKEMON_LIST_QUERY, {
         variables: createVars(searchParams),
@@ -89,7 +86,7 @@ const PokemonList: React.FC<Props> = ({ searchParams }) => {
         refetch(createVars(searchParams));
     }, [searchParams, refetch]);
 
-   // console.log(data);
+    // console.log(data);
 
     if (networkStatus === NetworkStatus.loading) return (<Skeleton />);
     if (error) return <p>Error! {error.message}</p>;
@@ -107,14 +104,14 @@ const PokemonList: React.FC<Props> = ({ searchParams }) => {
                             <span className='self-center'>{pokemon.name}</span>
                             <Image alt={pokemon.name} width={70} height={70}
                                 src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`} />
-{/* take img url from rest api since graphql not updated yet */}
+                            {/* take img url from rest api since graphql not updated yet */}
                         </a>
                     </Link>
                     )
                 })
             }
         </div>
-    {networkStatus===NetworkStatus.fetchMore?<Skeleton/>:''}
+        {networkStatus === NetworkStatus.fetchMore ? <Skeleton /> : ''}
     </>
     )
 }
