@@ -1,10 +1,12 @@
 import { useQuery, gql, NetworkStatus } from '@apollo/client';
 import useFetchMore from '../customHooks/useFetchMore'
-import { useEffect } from 'react'
+import React, { useEffect, memo, useCallback } from 'react'
 import Link from "next/link"
 import Image from 'next/image'
-import { SearchParams, useSearchContext } from '../context/SearchCtxProvider';
-import Skeleton from './Skeleton';
+import { SearchParams, useSearchContext } from '../context/SearchCtxProvider'
+import Skeleton from './Skeleton'
+import debound from 'lodash/debounce'
+
 
 export const POKEMON_LIST_QUERY = gql`
 query Pokemon_v2_pokemon($where: pokemon_v2_pokemon_bool_exp, $offset: Int, $limit: Int) {
@@ -72,8 +74,13 @@ const createVars = (searchParams: SearchParams): PokemonVar => {
 
 }
 
-const PokemonList: React.FC = () => {
-    const { searchParams } = useSearchContext()
+interface Props {
+    searchParams: SearchParams
+}
+
+const PokemonList: React.FC<Props> = ({ searchParams }) => {
+    // const { searchParams } = useSearchContext();
+    //console.log(searchParams);
 
     const { error, data, fetchMore, networkStatus, refetch } = useQuery<PokemonData, PokemonVar>(POKEMON_LIST_QUERY, {
         variables: createVars(searchParams),
@@ -81,6 +88,11 @@ const PokemonList: React.FC = () => {
     })
 
     const ref = useFetchMore(fetchMore, data)
+
+    // const deboundRefetch = useCallback(() => {
+    //   debound(searchParams=>refetch(createVars(searchParams)),500);
+    // }, [refetch]);
+    
 
     useEffect(() => {
         refetch(createVars(searchParams));
@@ -116,4 +128,6 @@ const PokemonList: React.FC = () => {
     )
 }
 
-export default PokemonList
+export default memo(PokemonList, (prev, next) => {
+    return prev.searchParams.searchType === next.searchParams.searchType && prev.searchParams.searchValue === next.searchParams.searchValue;
+})

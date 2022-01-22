@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState, useContext } from 'react'
-import debound from 'lodash/debounce'
 import { useSearchContext } from '../context/SearchCtxProvider';
 
 
@@ -29,34 +28,28 @@ export type searchT = 'name' | 'type';
 const SearchBar: React.FC = () => {
     const { setSearchParams, searchParams: { searchValue, searchType } } = useSearchContext();
 
-    const debounceSearch = useCallback(debound((searchType, searchValue) => setSearchParams({ searchType, searchValue }), 500), []);
-
     const handleSearchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSearchParams((prev) => {
-            return { ...prev, searchType: e.target.value as searchT }
-        });
-        if (searchType === 'type') {
-            setSearchParams((prev) => {
-                return { ...prev, searchValue: '' }
-            });
+        if (searchType !== 'name') {
+            setSearchParams(
+                { searchType: e.target.value as searchT, searchValue: '' }
+            );
         } else {
-            setSearchParams((prev) => {
-                return { ...prev, searchValue: 'normal' }
-            });
+            setSearchParams(
+                { searchType: e.target.value as searchT, searchValue: 'normal' }
+            );
+        }
+        return {
+
         }
     }
 
-    const handleSearchValueChange = (e:React.ChangeEvent<HTMLSelectElement|HTMLInputElement>)=>{
-        setSearchParams(prev=>{
-            return{
-            ...prev,searchValue:e.target.value
+    const handleSearchValueChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+        setSearchParams(prev => {
+            return {
+                ...prev, searchValue: e.target.value
             }
         })
     }
-
-    useEffect(() => {
-        debounceSearch(searchType, searchValue);
-    }, [searchType, searchValue]);
 
 
     return (<>

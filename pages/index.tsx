@@ -2,7 +2,7 @@ import type { NextPage } from 'next'
 import { useState } from 'react'
 import Head from 'next/head'
 import SearchBar, { searchT } from '../components/SearchBar'
-import PokemonList from '../components/PokemonList'
+import PokeListWithCtx from '../components/PokeListWithCtx'
 import { initializeApollo, addApolloState } from '../lib/apollo'
 import { PokemonData, PokemonVar, POKEMON_LIST_QUERY } from '../components/PokemonList'
 
@@ -19,7 +19,7 @@ const Home: NextPage = () => {
       </Head>
       <SearchBar/>
       <div>
-        <PokemonList/>
+        <PokeListWithCtx/>
       </div>
     </div>
   )
