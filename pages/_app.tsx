@@ -8,13 +8,12 @@ import SearchCtxProvider from '../context/SearchCtxProvider'
 function MyApp({ Component, pageProps }: AppProps) {
   const apolloClient = useApollo(pageProps)
   return (
-    <ApolloProvider client={apolloClient}>     
-      <Layout>
+    <ApolloProvider client={apolloClient}>
       <SearchCtxProvider>
-        <Component {...pageProps} />
-        </SearchCtxProvider>
-      </Layout>
-      
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </SearchCtxProvider>
     </ApolloProvider>
   )
 }
