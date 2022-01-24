@@ -5,8 +5,6 @@ import Link from "next/link"
 import Image from 'next/image'
 import { SearchParams, useSearchContext } from '../context/SearchCtxProvider'
 import Skeleton from './Skeleton'
-import debound from 'lodash/debounce'
-
 
 export const POKEMON_LIST_QUERY = gql`
 query Pokemon_v2_pokemon($where: pokemon_v2_pokemon_bool_exp, $offset: Int, $limit: Int) {
@@ -40,7 +38,6 @@ export interface PokemonData {
 
 
 const createVars = (searchParams: SearchParams): PokemonVar => {
-
     if (searchParams.searchValue !== "") {
         if (searchParams.searchType === 'name') {
             return {
@@ -74,60 +71,46 @@ const createVars = (searchParams: SearchParams): PokemonVar => {
 
 }
 
-interface Props {
-    searchParams: SearchParams
-}
+const PokemonList: React.FC = () => {
+    const { searchParams } = useSearchContext();
 
-const PokemonList: React.FC<Props> = ({ searchParams }) => {
-    // const { searchParams } = useSearchContext();
-    //console.log(searchParams);
-
-    const { error, data, fetchMore, networkStatus, refetch } = useQuery<PokemonData, PokemonVar>(POKEMON_LIST_QUERY, {
+    const { error, data, fetchMore, networkStatus, refetch,client } = useQuery<PokemonData, PokemonVar>(POKEMON_LIST_QUERY, {
         variables: createVars(searchParams),
         notifyOnNetworkStatusChange: true,
     })
 
-    const ref = useFetchMore(fetchMore, data)
-
-    // const deboundRefetch = useCallback(() => {
-    //   debound(searchParams=>refetch(createVars(searchParams)),500);
-    // }, [refetch]);
-    
+    const ref = useFetchMore(fetchMore, data);
 
     useEffect(() => {
         refetch(createVars(searchParams));
     }, [searchParams, refetch]);
-
-    // console.log(data);
 
     if (networkStatus === NetworkStatus.loading) return (<Skeleton />);
     if (error) return <p>Error! {error.message}</p>;
     if (networkStatus === NetworkStatus.refetch) return (<Skeleton />);
     if (data!.pokemon_v2_pokemon.length < 1) return (<p>No data found!!!!</p>)
 
-    return (<>
-        <div className='flex flex-wrap gap-6 mt-5'>
-            {
-                data!.pokemon_v2_pokemon.map((pokemon, index) => {
-                    return (<Link href={`/pokemons/${pokemon.id}`} key={pokemon.id} passHref>
-                        <a ref={index === data!.pokemon_v2_pokemon.length - 1 ? ref : undefined}
-                            className=' p-1 m-0 w-80 h-20 text-center flex flex-wrap justify-center gap-4 content-center  rounded-xl 
+    return (
+        <>
+            <div className='flex flex-wrap gap-6 mt-5'>
+                {
+                    data!.pokemon_v2_pokemon.map((pokemon, index) => {
+                        return (<Link href={`/pokemons/${pokemon.id}`} key={pokemon.id} passHref>
+                            <a ref={index === data!.pokemon_v2_pokemon.length - 1 ? ref : undefined}
+                                className=' p-1 m-0 w-80 h-20 text-center flex flex-wrap justify-center gap-4 content-center  rounded-xl 
                         bg-gray-100 text-lg shadow-sm hover:shadow-xl hover:scale-105 capitalize' >
-                            <span className='self-center'>{pokemon.name}</span>
-                            <Image alt={pokemon.name} width={70} height={70}
-                                src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`} />
-                            {/* take img url from rest api since graphql not updated yet */}
-                        </a>
-                    </Link>
-                    )
-                })
-            }
-        </div>
-        {/* {networkStatus === NetworkStatus.fetchMore ? <Skeleton /> : ''} */}
-    </>
+                                <span className='self-center'>{pokemon.name}</span>
+                                <Image alt={pokemon.name} width={70} height={70}
+                                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`} />
+                                {/* take img url from rest api since graphql not updated yet */}
+                            </a>
+                        </Link>
+                        )
+                    })
+                }
+            </div>
+        </>
     )
 }
 
-export default memo(PokemonList, (prev, next) => {
-    return prev.searchParams.searchType === next.searchParams.searchType && prev.searchParams.searchValue === next.searchParams.searchValue;
-})
+export default PokemonList

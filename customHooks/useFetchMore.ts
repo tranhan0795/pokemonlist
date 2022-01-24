@@ -12,7 +12,6 @@ const useFetchMore = (fetchMore: (vars: FetchMoreVars) => Promise<any>, data: Po
         if (ref.current !== null) { //to be sure data is not undefined
             const observer = new IntersectionObserver((entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
                 if (entries[0].isIntersecting) {
-                   // console.log('inview now');
                     fetchMore({
                         variables: {
                             offset: data!.pokemon_v2_pokemon.length,

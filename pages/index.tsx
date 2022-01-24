@@ -1,12 +1,7 @@
 import type { NextPage } from 'next'
-import { useState } from 'react'
 import Head from 'next/head'
-import SearchBar, { searchT } from '../components/SearchBar'
-import PokeListWithCtx from '../components/PokeListWithCtx'
-import { initializeApollo, addApolloState } from '../lib/apollo'
-import { PokemonData, PokemonVar, POKEMON_LIST_QUERY } from '../components/PokemonList'
-
-
+import SearchBar from '../components/SearchBar'
+import PokemonList from '../components/PokemonList'
 
 const Home: NextPage = () => {
 
@@ -19,24 +14,10 @@ const Home: NextPage = () => {
       </Head>
       <SearchBar/>
       <div>
-        <PokeListWithCtx/>
+        <PokemonList/>
       </div>
     </div>
   )
-}
-
-export async function getStaticProps() {
-  const apolloClient = initializeApollo()
-
-  await apolloClient.query<PokemonData, PokemonVar>({
-    query: POKEMON_LIST_QUERY,
-    variables: { limit: 30 },
-  })
-
-  return addApolloState(apolloClient, {
-    props: {},
-    revalidate: 3600,
-  })
 }
 
 export default Home
